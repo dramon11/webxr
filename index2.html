@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Navegación en Interiores con WebXR</title>
+  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+</head>
+<body>
+  <a-scene webxr="requiredFeatures: hit-test, local-floor" embedded>
+    <!-- Cargar modelo 3D -->
+    <a-assets>
+      <a-asset-item id="indoor-model" src="path/to/indoor-model.glb"></a-asset-item>
+    </a-assets>
+
+    <!-- Modelo del entorno -->
+    <a-entity gltf-model="#indoor-model" position="0 0 -5" scale="1 1 1"></a-entity>
+
+    <!-- Marcador del usuario -->
+    <a-entity id="user-marker" geometry="primitive: sphere" material="color: red" scale="0.2 0.2 0.2" position="0 0 0"></a-entity>
+
+    <!-- Flecha de navegación -->
+    <a-entity id="nav-arrow" geometry="primitive: cone" material="color: blue" scale="0.5 0.5 0.5" position="0 1 -2"></a-entity>
+  </a-scene>
+
+  <script>
+    let userPosition = { x: 0, y: 0, z: 0 };
+    const destination = { x: 5, z: -5 };
+
+    // Simular movimiento del usuario (en un caso real, usar sistema de posicionamiento)
+    setInterval(() => {
+      userPosition.x += 0.1; // Movimiento simulado
+      updateUserPosition(userPosition.x, userPosition.z);
+      updateNavArrow();
+    }, 1000);
+
+    function updateUserPosition(newX, newZ) {
+      userPosition.x = newX;
+      userPosition.z = newZ;
+      document.querySelector('#user-marker').setAttribute('position', `${newX} 0 ${newZ}`);
+    }
+
+    function updateNavArrow() {
+      const dx = destination.x - userPosition.x;
+      const dz = destination.z - userPosition.z;
+      const angle = Math.atan2(dx, dz);
+      document.querySelector('#nav-arrow').setAttribute('rotation', `0 ${angle * 180 / Math.PI} 0`);
+    }
+  </script>
+</body>
+</html>
