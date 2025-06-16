@@ -6,97 +6,52 @@
   <script src="https://cdn.jsdelivr.net/npm/aframe@1.4.2/dist/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-aframe.prod.js"></script>
   <style>
-    body {
-      margin: 0;
-      overflow: hidden;
-    }
-
-    /* Abarcar toda la pantalla con el escáner */
+    body { margin: 0; overflow: hidden; }
     .mindar-ui-overlay {
       position: absolute !important;
-      top: 0 !important;
-      left: 0 !important;
-      width: 100vw !important;
-      height: 100vh !important;
-      background-color: transparent !important;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background-color: transparent;
       z-index: 10;
     }
-
     .mindar-ui-scanning .mindar-ui-rect {
-      width: 100vw !important;
-      height: 100vh !important;
-      border: 2px dashed lime !important;
+      width: 100vw; height: 100vh;
+      border: 2px dashed lime;
       box-sizing: border-box;
     }
-
-    .mindar-ui-scanning .mindar-ui-text {
-      font-size: 1.2em;
+    .mindar-ui-text {
       color: white;
+      font-size: 1.2em;
       text-align: center;
-      width: 100%;
-      margin-top: 20px;
     }
   </style>
 </head>
 <body>
   <a-scene
     mindar-image="imageTargetSrc: assets/targets.mind; autoStart: true;"
-    mindar-image-ui="allow: true"
+    mindar-image-ui="enabled: true"
     embedded
     vr-mode-ui="enabled: false"
-    device-orientation-permission-ui="enabled: false"
-  >
+    device-orientation-permission-ui="enabled: false">
+
     <a-assets>
       <a-asset-item id="arrow" src="assets/arrow.glb"></a-asset-item>
-      <img id="map" src="assets/map.jpg">
     </a-assets>
 
-    <a-camera></a-camera>
+    <a-camera position="0 0 0"></a-camera>
 
-    <!-- Primer marcador con flecha + mapa -->
     <a-image-target targetIndex="0">
-      <a-entity
-        gltf-model="#arrow"
-        position="0 0 0"
-        scale="0.3 0.3 0.3"
-        animation="property: position; to: 0 0.15 0; dur: 800; loop: true; dir: alternate">
+      <a-entity gltf-model="#arrow"
+                position="0 0 0"
+                scale="0.3 0.3 0.3"
+                animation="property: position; to: 0 0.15 0; dur: 800; loop: true; dir: alternate">
       </a-entity>
-      <a-plane
-        src="#map"
-        height="0.12"
-        width="0.12"
-        position="0 0.25 0">
-      </a-plane>
-    </a-image-target>
-
-    <!-- Segundo marcador con flecha girada -->
-    <a-image-target targetIndex="1">
-      <a-entity
-        gltf-model="#arrow"
-        position="0 0 0"
-        scale="0.3 0.3 0.3"
-        rotation="0 0 90"
-        animation="property: position; to: 0 0.15 0; dur: 800; loop: true; dir: alternate">
-      </a-entity>
-    </a-image-target>
-
-    <!-- Marcador de destino -->
-    <a-image-target targetIndex="2">
-      <a-entity id="destino-content" position="0 0 0">
-        <a-text
-          value="¡Has llegado!"
-          color="lime"
-          position="0 0.2 0"
-          align="center"
-          width="2">
-        </a-text>
-        <a-entity
-          gltf-model="#arrow"
-          position="0 0 0"
-          scale="0.4 0.4 0.4"
-          animation="property: position; to: 0 0.15 0; dur: 800; loop: true; dir: alternate">
-        </a-entity>
-      </a-entity>
+      <a-text value="¡Bienvenido!"
+               position="0 0.3 0"
+               align="center"
+               color="lime"
+               width="2">
+      </a-text>
     </a-image-target>
   </a-scene>
 </body>
