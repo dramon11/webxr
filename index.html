@@ -2,16 +2,39 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Test AR</title>
+  <title>AR Navegación</title>
   <script src="https://cdn.jsdelivr.net/npm/aframe@1.4.2/dist/aframe.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-aframe.prod.js"></script>
   <style>
-    body { margin: 0; overflow: hidden; }
-    .mindar-ui-scanning {
-      background: transparent !important;
+    body {
+      margin: 0;
+      overflow: hidden;
     }
-    .mindar-ui-rect, .mindar-ui-text {
-      display: none !important;
+
+    /* Abarcar toda la pantalla con el escáner */
+    .mindar-ui-overlay {
+      position: absolute !important;
+      top: 0 !important;
+      left: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      background-color: transparent !important;
+      z-index: 10;
+    }
+
+    .mindar-ui-scanning .mindar-ui-rect {
+      width: 100vw !important;
+      height: 100vh !important;
+      border: 2px dashed lime !important;
+      box-sizing: border-box;
+    }
+
+    .mindar-ui-scanning .mindar-ui-text {
+      font-size: 1.2em;
+      color: white;
+      text-align: center;
+      width: 100%;
+      margin-top: 20px;
     }
   </style>
 </head>
@@ -25,13 +48,54 @@
   >
     <a-assets>
       <a-asset-item id="arrow" src="assets/arrow.glb"></a-asset-item>
+      <img id="map" src="assets/map.jpg">
     </a-assets>
+
     <a-camera></a-camera>
+
+    <!-- Primer marcador con flecha + mapa -->
     <a-image-target targetIndex="0">
       <a-entity
         gltf-model="#arrow"
+        position="0 0 0"
         scale="0.3 0.3 0.3"
         animation="property: position; to: 0 0.15 0; dur: 800; loop: true; dir: alternate">
+      </a-entity>
+      <a-plane
+        src="#map"
+        height="0.12"
+        width="0.12"
+        position="0 0.25 0">
+      </a-plane>
+    </a-image-target>
+
+    <!-- Segundo marcador con flecha girada -->
+    <a-image-target targetIndex="1">
+      <a-entity
+        gltf-model="#arrow"
+        position="0 0 0"
+        scale="0.3 0.3 0.3"
+        rotation="0 0 90"
+        animation="property: position; to: 0 0.15 0; dur: 800; loop: true; dir: alternate">
+      </a-entity>
+    </a-image-target>
+
+    <!-- Marcador de destino -->
+    <a-image-target targetIndex="2">
+      <a-entity id="destino-content" position="0 0 0">
+        <a-text
+          value="¡Has llegado!"
+          color="lime"
+          position="0 0.2 0"
+          align="center"
+          width="2">
+        </a-text>
+        <a-entity
+          gltf-model="#arrow"
+          position="0 0 0"
+          scale="0.4 0.4 0.4"
+          animation="property: position; to: 0 0.15 0; dur: 800; loop: true; dir: alternate">
+        </a-entity>
       </a-entity>
     </a-image-target>
   </a-scene>
