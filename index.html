@@ -7,8 +7,14 @@
   <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-aframe.prod.js"></script>
   <style>
     body { margin: 0; overflow: hidden; }
-    .mindar-ui-overlay {
-      display: none !important; /* Oculta el UI de escaneo */
+
+    /* Oculta únicamente el "marco" de escaneo, no todo el UI */
+    .mindar-ui-scanning {
+      background: transparent !important;
+    }
+    .mindar-ui-scanning .mindar-ui-rect,
+    .mindar-ui-scanning .mindar-ui-text {
+      display: none !important;
     }
   </style>
 </head>
@@ -24,30 +30,51 @@
       <img id="map" src="assets/map.jpg">
     </a-assets>
 
+    <!-- Cámara y fondo de vídeo -->
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
-    <!-- Primer marcador -->
+    <!-- Marcador 0 -->
     <a-image-target targetIndex="0">
-      <a-entity gltf-model="#arrow" position="0 0 0" scale="0.3 0.3 0.3"
-                animation="property: position; to: 0 0.15 0; dur: 800; loop: true; dir: alternate">
+      <a-entity
+        gltf-model="#arrow"
+        position="0 0 0"
+        scale="0.3 0.3 0.3"
+        animation="property: position; to: 0 0.15 0; dur: 800; loop: true; dir: alternate">
       </a-entity>
-      <a-plane src="#map" height="0.15" width="0.15" position="0 0.25 0"></a-plane>
+      <a-plane
+        src="#map"
+        height="0.12"
+        width="0.12"
+        position="0 0.25 0">
+      </a-plane>
     </a-image-target>
 
-    <!-- Segundo marcador -->
+    <!-- Marcador 1 -->
     <a-image-target targetIndex="1">
-      <a-entity gltf-model="#arrow" position="0 0 0" scale="0.3 0.3 0.3"
-                rotation="0 0 90"
-                animation="property: position; to: 0 0.15 0; dur: 800; loop: true; dir: alternate">
+      <a-entity
+        gltf-model="#arrow"
+        position="0 0 0"
+        scale="0.3 0.3 0.3"
+        rotation="0 0 90"
+        animation="property: position; to: 0 0.15 0; dur: 800; loop: true; dir: alternate">
       </a-entity>
     </a-image-target>
 
-    <!-- Destino final -->
+    <!-- Destino (targetIndex 2) -->
     <a-image-target targetIndex="2">
       <a-entity id="destino-content" position="0 0 0">
-        <a-text value="¡Has llegado!" color="lime" position="0 0.2 0" align="center" width="2"></a-text>
-        <a-entity gltf-model="#arrow" position="0 0 0" scale="0.4 0.4 0.4"
-                  animation="property: position; to: 0 0.15 0; dur: 800; loop: true; dir: alternate">
+        <a-text
+          value="¡Has llegado!"
+          color="lime"
+          position="0 0.2 0"
+          align="center"
+          width="2">
+        </a-text>
+        <a-entity
+          gltf-model="#arrow"
+          position="0 0 0"
+          scale="0.4 0.4 0.4"
+          animation="property: position; to: 0 0.15 0; dur: 800; loop: true; dir: alternate">
         </a-entity>
       </a-entity>
     </a-image-target>
@@ -57,3 +84,4 @@
   <script src="js/app.js"></script>
 </body>
 </html>
+
