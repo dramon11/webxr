@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <title>Navegación AR en Interiores</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-    <!-- A-Frame y MindAR (versiones recientes) -->
+    <!-- A-Frame y MindAR -->
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mindar@0.5.3/dist/mindar-image-aframe.prod.js"></script>
     <style>
@@ -22,45 +22,39 @@
         top: 0;
         left: 0;
       }
-      #errorMessage {
+      #statusMessage {
         position: fixed;
         top: 20px;
         left: 50%;
         transform: translateX(-50%);
-        color: red;
+        color: white;
         font-family: Arial, sans-serif;
         font-size: 16px;
         background: rgba(0, 0, 0, 0.7);
         padding: 10px;
-        display: none;
         z-index: 1000;
       }
     </style>
   </head>
 
   <body>
-    <!-- Mensaje de error para depuración -->
-    <div id="errorMessage"></div>
+    <!-- Mensaje de estado para depuración -->
+    <div id="statusMessage">Cargando AR...</div>
 
     <a-scene
-      mindar-image="imageTargetSrc: assets/targets.mind; autoStart: true; uiLoading: no; uiScanning: no; uiError: no;"
+      mindar-image="imageTargetSrc: assets/targets.mind; autoStart: true; uiLoading: no; uiScanning: no; uiError: no; maxTrack: 2;"
       embedded
       color-space="sRGB"
-      renderer="colorManagement: true, physicallyCorrectLights"
+      renderer="colorManagement: true"
       vr-mode-ui="enabled: false"
       device-orientation-permission-ui="enabled: true"
     >
       <a-assets>
-        <!-- Asegúrate de que la ruta al modelo GLB sea correcta -->
         <a-asset-item id="arrow" src="assets/arrow.glb"></a-asset-item>
       </a-assets>
 
-      <!-- Cámara configurada para AR -->
-      <a-camera
-        position="0 0 0"
-        look-controls="enabled: false"
-        gps-camera="simulate: false"
-      ></a-camera>
+      <!-- Cámara -->
+      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
       <!-- Marcador 1 (Punto A) -->
       <a-image-target targetIndex="0">
@@ -68,7 +62,7 @@
           <a-entity
             gltf-model="#arrow"
             position="0 0 0"
-            scale="0.3 0.3 0.3"
+            scale="0.5 0.5 0.5"
             animation="property: position; to: 0 0.15 0; dur: 1000; loop: true; dir: alternate"
           ></a-entity>
           <a-text
@@ -87,7 +81,7 @@
           <a-entity
             gltf-model="#arrow"
             position="0 0 0"
-            scale="0.3 0.3 0.3"
+            scale="0.5 0.5 0.5"
             rotation="0 180 0"
             animation="property: position; to: 0 0.15 0; dur: 1000; loop: true; dir: alternate"
           ></a-entity>
@@ -103,30 +97,60 @@
     </a-scene>
 
     <script>
-      // Script para depurar problemas con la cámara
       document.addEventListener('DOMContentLoaded', () => {
         const scene = document.querySelector('a-scene');
-        const errorMessage = document.getElementById('errorMessage');
+        const statusMessage = document.getElementById('statusMessage');
 
-        // Verificar si MindAR está listo
+        // Actualizar mensaje de estado
+        const updateStatus = (msg, color = 'white') => {
+          statusMessage.textContent = msg;
+          statusMessage.style.color = color;
+        };
+
+        // Verificar inicialización de MindAR
         scene.addEventListener('arReady', () => {
-          console.log('MindAR inicializado correctamente');
+          console.log('MindAR inicializado. Cámara activa.');
+          updateStatus('AR listo. Apunta a los marcadores.', 'green');
         });
 
         // Detectar errores de MindAR
         scene.addEventListener('arError', (err) => {
           console.error('Error de MindAR:', err);
-          errorMessage.style.display = 'block';
-          errorMessage.textContent = 'Error AR: Revisa la consola para detalles';
+          updateStatus('Error AR: Revisa la consola.', 'red');
         });
 
         // Verificar acceso a la cámara
         navigator.mediaDevices
-          .getUserMedia({ video: true })
+          .getUserMedia({ video: { facingMode: 'environment' } })
+          .then((stream) => {
+            console.log('Cámara accedida:', stream);
+            updateStatus('Cámara activa. Cargando marcadores...', 'white');
+          })
           .catch((err) => {
             console.error('Error al acceder a la cámara:', err);
-            errorMessage.style.display = 'block';
-            errorMessage.textContent = 'No se puede acceder a la cámara. Verifica permisos.';
+            updateStatus('Error: No se puede acceder a la cámara.', 'red');
+          });
+
+        // Verificar carga de targets.mind
+        fetch('assets/targets.mind')
+          .then((response) => {
+            if (!response.ok) throw new Error('No se pudo cargar targets.mind');
+            console.log('targets.mind cargado');
+          })
+          .catch((err) => {
+            console.error('Error targets.mind:', err);
+            updateStatus('Error: No se pudo cargar targets.mind', 'red');
+          });
+
+        // Verificar carga de arrow.glb
+        fetch('assets/arrow.glb')
+          .then((response) => {
+            if (!response.ok) throw new Error('No se pudo cargar arrow.glb');
+            console.log('arrow.glb cargado');
+          })
+          .catch((err) => {
+            console.error('Error arrow.glb:', err);
+            updateStatus('Error: No se pudo cargar arrow.glb', 'red');
           });
       });
     </script>
