@@ -13,7 +13,7 @@
         padding: 0;
         overflow: hidden;
         height: 100%;
-        background: transparent; /* Evita fondo negro */
+        background: transparent;
       }
       a-scene {
         width: 100vw;
@@ -21,6 +21,15 @@
         position: fixed;
         top: 0;
         left: 0;
+      }
+      video {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: -1;
       }
       #statusMessage {
         position: fixed;
@@ -43,8 +52,6 @@
     <a-scene
       mindar-image="imageTargetSrc: assets/targets.mind; autoStart: true; uiLoading: no; uiScanning: no; uiError: no; maxTrack: 2;"
       embedded
-      color-space="sRGB"
-      renderer="colorManagement: true"
       vr-mode-ui="enabled: false"
       device-orientation-permission-ui="enabled: true"
     >
@@ -102,68 +109,75 @@
           statusMessage.style.color = color;
         };
 
-        // Confirmar inicialización de MindAR
+        // Inicialización de MindAR
         scene.addEventListener('arReady', () => {
-          console.log('MindAR listo. Cámara activa.');
+          console.log('MindAR inicializado.');
           updateStatus('AR listo. Apunta a los marcadores.', 'green');
         });
 
-        // Detectar errores de MindAR
+        // Errores de MindAR
         scene.addEventListener('arError', (err) => {
           console.error('Error MindAR:', err);
           updateStatus('Error AR: Revisa la consola.', 'red');
         });
 
-        // Verificar acceso a la cámara
+        // Verificar cámara
         navigator.mediaDevices
           .getUserMedia({ video: { facingMode: 'environment' } })
           .then((stream) => {
-            console.log('Cámara activa:', stream);
-            updateStatus('Cámara conectada. Cargando marcadores...', 'white');
-            // Forzar renderizado del video
-            const video = document.querySelector('video');
-            if (video) {
-              console.log('Video elemento encontrado:', video);
-              video.style.display = 'block';
-            } else {
-              console.warn('No se encontró elemento de video.');
-              updateStatus('Advertencia: No se detectó feed de video.', 'yellow');
-            }
+            console.log('Cámara conectada:', stream);
+            updateStatus('Cámara activa. Buscando video...', 'white');
+
+            // Buscar elemento de video
+            const checkVideo = () => {
+              const video = document.querySelector('video');
+              if (video && video.srcObject) {
+                console.log('Video encontrado:', video);
+                video.style.display = 'block';
+                video.play().catch((e) => console.error('Error al reproducir video:', e));
+                updateStatus('Video activo. Apunta a los marcadores.', 'green');
+              } else {
+                console.warn('Video no encontrado aún.');
+                updateStatus('Buscando feed de video...', 'yellow');
+                setTimeout(checkVideo, 500); // Reintentar
+              }
+            };
+            setTimeout(checkVideo, 1000); // Dar tiempo a MindAR
           })
           .catch((err) => {
             console.error('Error cámara:', err);
             updateStatus('Error: No se puede acceder a la cámara.', 'red');
           });
 
-        // Verificar carga de targets.mind
+        // Verificar targets.mind
         fetch('assets/targets.mind')
           .then((response) => {
             if (!response.ok) throw new Error('No se pudo cargar targets.mind');
-            console.log('targets.mind cargado');
+            console.log('targets.mind cargado.');
           })
           .catch((err) => {
             console.error('Error targets.mind:', err);
-            updateStatus('Error: No se pudo cargar targets.mind', 'red');
+            updateStatus('Error: No se pudo cargar targets.mind.', 'red');
           });
 
-        // Verificar carga de arrow.glb
+        // Verificar arrow.glb
         fetch('assets/arrow.glb')
           .then((response) => {
             if (!response.ok) throw new Error('No se pudo cargar arrow.glb');
-            console.log('arrow.glb cargado');
+            console.log('arrow.glb cargado.');
           })
           .catch((err) => {
             console.error('Error arrow.glb:', err);
-            updateStatus('Error: No se pudo cargar arrow.glb', 'red');
+            updateStatus('Error: No se pudo cargar arrow.glb.', 'red');
           });
 
-        // Detectar cuando se encuentra un marcador
+        // Detectar marcadores
         scene.addEventListener('targetFound', () => {
-          console.log('Marcador detectado');
-          updateStatus('Marcador encontrado!', 'green');
+          console.log('Marcador detectado.');
+          updateStatus('¡Marcador encontrado!', 'green');
         });
         scene.addEventListener('targetLost', () => {
-          console.log('Marcador perdido');
+          console.log('Marcador perdido.');
           updateStatus('AR listo. Apunta a los marcadores.', 'green');
         });
       });
