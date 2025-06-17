@@ -2,9 +2,9 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Navegación AR – Punto A y Destino</title>
+    <title>Navegación en Interiores AR</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-    <!-- Usamos la última versión estable de A-Frame y MindAR -->
+    <!-- A-Frame y MindAR para WebAR -->
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mindar@0.5.3/dist/mindar-image-aframe.prod.js"></script>
     <style>
@@ -22,27 +22,30 @@
         top: 0;
         left: 0;
       }
-      #startButton {
+      /* Estilo para el mensaje de instrucciones */
+      #instructions {
         position: fixed;
-        top: 50%;
+        top: 10px;
         left: 50%;
-        transform: translate(-50%, -50%);
-        padding: 10px 20px;
-        font-size: 18px;
-        background: #fff;
-        border: none;
-        cursor: pointer;
+        transform: translateX(-50%);
+        color: white;
+        font-family: Arial, sans-serif;
+        font-size: 16px;
+        text-align: center;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 10px;
+        border-radius: 5px;
         z-index: 1000;
       }
     </style>
   </head>
 
   <body>
-    <!-- Botón para iniciar manualmente la experiencia AR -->
-    <button id="startButton">Iniciar AR</button>
+    <!-- Mensaje de instrucciones -->
+    <div id="instructions">Escanea los marcadores para navegar</div>
 
     <a-scene
-      mindar-image="imageTargetSrc: assets/targets.mind; autoStart: false; uiLoading: no; uiScanning: no;"
+      mindar-image="imageTargetSrc: assets/targets.mind; autoStart: true; uiLoading: yes; uiScanning: yes; uiError: yes;"
       embedded
       color-space="sRGB"
       renderer="colorManagement: true, physicallyCorrectLights"
@@ -53,14 +56,14 @@
         <a-asset-item id="arrow" src="assets/arrow.glb"></a-asset-item>
       </a-assets>
 
-      <!-- Cámara configurada para AR -->
+      <!-- Cámara para AR -->
       <a-camera
         position="0 0 0"
         look-controls="enabled: false"
         gps-camera="simulate: false"
       ></a-camera>
 
-      <!-- Punto A -->
+      <!-- Marcador 1: Punto A -->
       <a-image-target targetIndex="0">
         <a-entity position="0 0 0">
           <a-entity
@@ -79,7 +82,7 @@
         </a-entity>
       </a-image-target>
 
-      <!-- Destino -->
+      <!-- Marcador 2: Destino -->
       <a-image-target targetIndex="1">
         <a-entity position="0 0 0">
           <a-entity
@@ -99,29 +102,5 @@
         </a-entity>
       </a-image-target>
     </a-scene>
-
-    <script>
-      // Script para manejar el inicio manual de la experiencia AR
-      document.addEventListener('DOMContentLoaded', () => {
-        const scene = document.querySelector('a-scene');
-        const startButton = document.getElementById('startButton');
-
-        startButton.addEventListener('click', () => {
-          // Ocultar el botón al iniciar
-          startButton.style.display = 'none';
-
-          // Forzar la solicitud de permisos de cámara y orientación
-          scene.setAttribute('mindar-image', {
-            autoStart: true,
-            imageTargetSrc: 'assets/targets.mind',
-            uiLoading: 'no',
-            uiScanning: 'no'
-          });
-
-          // Iniciar la escena
-          scene.setAttribute('embedded', '');
-        });
-      });
-    </script>
   </body>
 </html>
