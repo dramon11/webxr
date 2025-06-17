@@ -2,24 +2,12 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>MindAR - 2 imágenes</title>
+    <title>MindAR - Demo 2 imágenes</title>
     <script src="https://cdn.jsdelivr.net/npm/aframe@1.4.2/dist/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-aframe.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-aframe.js"></script>
     <style>
-      html, body {
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-        width: 100%;
-        height: 100%;
-      }
-      a-scene {
-        width: 100vw;
-        height: 100vh;
-        position: absolute;
-        top: 0;
-        left: 0;
-      }
+      html, body { margin: 0; padding: 0; overflow: hidden; height: 100%; }
+      a-scene { width: 100vw; height: 100vh; }
     </style>
   </head>
   <body>
@@ -35,7 +23,6 @@
 
       <a-camera position="0 0 0"></a-camera>
 
-      <!-- Primer marcador -->
       <a-image-target targetIndex="0">
         <a-entity gltf-model="#arrow" position="0 0 0" scale="0.3 0.3 0.3"
           animation="property: position; to: 0 0.15 0; dur: 1000; loop: true; dir: alternate">
@@ -43,7 +30,6 @@
         <a-text value="Punto A" color="yellow" position="0 0.4 0" align="center" width="2"></a-text>
       </a-image-target>
 
-      <!-- Segundo marcador -->
       <a-image-target targetIndex="1">
         <a-entity gltf-model="#arrow" position="0 0 0" scale="0.3 0.3 0.3"
           rotation="0 180 0"
