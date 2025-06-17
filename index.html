@@ -4,9 +4,9 @@
     <meta charset="utf-8" />
     <title>Navegación AR – Punto A y Destino</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-    <!-- A-Frame y MindAR -->
-    <script src="https://cdn.jsdelivr.net/npm/aframe@1.4.2/dist/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.min.js"></script>
+    <!-- Usamos la última versión estable de A-Frame y MindAR -->
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mindar@0.5.3/dist/mindar-image-aframe.prod.js"></script>
     <style>
       html, body {
         margin: 0;
@@ -22,26 +22,27 @@
         top: 0;
         left: 0;
       }
-      #permissionButton {
+      #startButton {
         position: fixed;
-        bottom: 20px;
+        top: 50%;
         left: 50%;
-        transform: translateX(-50%);
-        z-index: 999;
+        transform: translate(-50%, -50%);
         padding: 10px 20px;
+        font-size: 18px;
         background: #fff;
         border: none;
-        border-radius: 5px;
         cursor: pointer;
-        display: none;
+        z-index: 1000;
       }
     </style>
   </head>
 
   <body>
-    <button id="permissionButton">Activar Cámara</button>
+    <!-- Botón para iniciar manualmente la experiencia AR -->
+    <button id="startButton">Iniciar AR</button>
+
     <a-scene
-      mindar-image="imageTargetSrc: assets/targets.mind; autoStart: false; maxTrack: 2; uiLoading: yes; uiScanning: yes; uiError: yes;"
+      mindar-image="imageTargetSrc: assets/targets.mind; autoStart: false; uiLoading: no; uiScanning: no;"
       embedded
       color-space="sRGB"
       renderer="colorManagement: true, physicallyCorrectLights"
@@ -52,7 +53,12 @@
         <a-asset-item id="arrow" src="assets/arrow.glb"></a-asset-item>
       </a-assets>
 
-      <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+      <!-- Cámara configurada para AR -->
+      <a-camera
+        position="0 0 0"
+        look-controls="enabled: false"
+        gps-camera="simulate: false"
+      ></a-camera>
 
       <!-- Punto A -->
       <a-image-target targetIndex="0">
@@ -63,7 +69,13 @@
             scale="0.3 0.3 0.3"
             animation="property: position; to: 0 0.15 0; dur: 1000; loop: true; dir: alternate"
           ></a-entity>
-          <a-text value="Punto A" position="0 0.4 0" align="center" color="yellow" width="2"></a-text>
+          <a-text
+            value="Punto A"
+            position="0 0.4 0"
+            align="center"
+            color="yellow"
+            width="2"
+          ></a-text>
         </a-entity>
       </a-image-target>
 
@@ -77,36 +89,37 @@
             rotation="0 180 0"
             animation="property: position; to: 0 0.15 0; dur: 1000; loop: true; dir: alternate"
           ></a-entity>
-          <a-text value="Destino" position="0 0.4 0" align="center" color="lime" width="2"></a-text>
+          <a-text
+            value="Destino"
+            position="0 0.4 0"
+            align="center"
+            color="lime"
+            width="2"
+          ></a-text>
         </a-entity>
       </a-image-target>
     </a-scene>
 
     <script>
-      // Script para manejar permisos y activación de la cámara
+      // Script para manejar el inicio manual de la experiencia AR
       document.addEventListener('DOMContentLoaded', () => {
         const scene = document.querySelector('a-scene');
-        const permissionButton = document.getElementById('permissionButton');
+        const startButton = document.getElementById('startButton');
 
-        // Mostrar botón si la escena no se inicia automáticamente
-        permissionButton.style.display = 'block';
+        startButton.addEventListener('click', () => {
+          // Ocultar el botón al iniciar
+          startButton.style.display = 'none';
 
-        permissionButton.addEventListener('click', () => {
-          // Solicitar permisos de cámara y orientación
-          scene.setAttribute('mindar-image', 'autoStart: true');
-          permissionButton.style.display = 'none';
-          console.log('Cámara activada manualmente');
-        });
+          // Forzar la solicitud de permisos de cámara y orientación
+          scene.setAttribute('mindar-image', {
+            autoStart: true,
+            imageTargetSrc: 'assets/targets.mind',
+            uiLoading: 'no',
+            uiScanning: 'no'
+          });
 
-        // Depuración: Verificar si MindAR está listo
-        scene.addEventListener('arReady', () => {
-          console.log('MindAR está listo y la cámara está activa');
-        });
-
-        // Depuración: Capturar errores de MindAR
-        scene.addEventListener('arError', (err) => {
-          console.error('Error en MindAR:', err);
-          alert('Error al iniciar AR. Por favor, verifica la consola para más detalles.');
+          // Iniciar la escena
+          scene.setAttribute('embedded', '');
         });
       });
     </script>
