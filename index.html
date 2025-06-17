@@ -2,9 +2,9 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <title>Navegación en Interiores AR</title>
+    <title>Navegación AR en Interiores</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
-    <!-- A-Frame y MindAR para WebAR -->
+    <!-- A-Frame y MindAR (versiones recientes) -->
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mindar@0.5.3/dist/mindar-image-aframe.prod.js"></script>
     <style>
@@ -22,30 +22,28 @@
         top: 0;
         left: 0;
       }
-      /* Estilo para el mensaje de instrucciones */
-      #instructions {
+      #errorMessage {
         position: fixed;
-        top: 10px;
+        top: 20px;
         left: 50%;
         transform: translateX(-50%);
-        color: white;
+        color: red;
         font-family: Arial, sans-serif;
         font-size: 16px;
-        text-align: center;
         background: rgba(0, 0, 0, 0.7);
         padding: 10px;
-        border-radius: 5px;
+        display: none;
         z-index: 1000;
       }
     </style>
   </head>
 
   <body>
-    <!-- Mensaje de instrucciones -->
-    <div id="instructions">Escanea los marcadores para navegar</div>
+    <!-- Mensaje de error para depuración -->
+    <div id="errorMessage"></div>
 
     <a-scene
-      mindar-image="imageTargetSrc: assets/targets.mind; autoStart: true; uiLoading: yes; uiScanning: yes; uiError: yes;"
+      mindar-image="imageTargetSrc: assets/targets.mind; autoStart: true; uiLoading: no; uiScanning: no; uiError: no;"
       embedded
       color-space="sRGB"
       renderer="colorManagement: true, physicallyCorrectLights"
@@ -53,17 +51,18 @@
       device-orientation-permission-ui="enabled: true"
     >
       <a-assets>
+        <!-- Asegúrate de que la ruta al modelo GLB sea correcta -->
         <a-asset-item id="arrow" src="assets/arrow.glb"></a-asset-item>
       </a-assets>
 
-      <!-- Cámara para AR -->
+      <!-- Cámara configurada para AR -->
       <a-camera
         position="0 0 0"
         look-controls="enabled: false"
         gps-camera="simulate: false"
       ></a-camera>
 
-      <!-- Marcador 1: Punto A -->
+      <!-- Marcador 1 (Punto A) -->
       <a-image-target targetIndex="0">
         <a-entity position="0 0 0">
           <a-entity
@@ -82,7 +81,7 @@
         </a-entity>
       </a-image-target>
 
-      <!-- Marcador 2: Destino -->
+      <!-- Marcador 2 (Destino) -->
       <a-image-target targetIndex="1">
         <a-entity position="0 0 0">
           <a-entity
@@ -102,5 +101,34 @@
         </a-entity>
       </a-image-target>
     </a-scene>
+
+    <script>
+      // Script para depurar problemas con la cámara
+      document.addEventListener('DOMContentLoaded', () => {
+        const scene = document.querySelector('a-scene');
+        const errorMessage = document.getElementById('errorMessage');
+
+        // Verificar si MindAR está listo
+        scene.addEventListener('arReady', () => {
+          console.log('MindAR inicializado correctamente');
+        });
+
+        // Detectar errores de MindAR
+        scene.addEventListener('arError', (err) => {
+          console.error('Error de MindAR:', err);
+          errorMessage.style.display = 'block';
+          errorMessage.textContent = 'Error AR: Revisa la consola para detalles';
+        });
+
+        // Verificar acceso a la cámara
+        navigator.mediaDevices
+          .getUserMedia({ video: true })
+          .catch((err) => {
+            console.error('Error al acceder a la cámara:', err);
+            errorMessage.style.display = 'block';
+            errorMessage.textContent = 'No se puede acceder a la cámara. Verifica permisos.';
+          });
+      });
+    </script>
   </body>
 </html>
