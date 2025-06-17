@@ -13,7 +13,7 @@
         padding: 0;
         overflow: hidden;
         height: 100%;
-        background: #000;
+        background: transparent; /* Evita fondo negro */
       }
       a-scene {
         width: 100vw;
@@ -30,7 +30,7 @@
         color: white;
         font-family: Arial, sans-serif;
         font-size: 16px;
-        background: rgba(0, 0, 0, 0.7);
+        background: rgba(0, 0, 0, 0.5);
         padding: 10px;
         z-index: 1000;
       }
@@ -38,7 +38,6 @@
   </head>
 
   <body>
-    <!-- Mensaje de estado para depuración -->
     <div id="statusMessage">Cargando AR...</div>
 
     <a-scene
@@ -53,46 +52,42 @@
         <a-asset-item id="arrow" src="assets/arrow.glb"></a-asset-item>
       </a-assets>
 
-      <!-- Cámara -->
+      <!-- Cámara mínima -->
       <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
 
       <!-- Marcador 1 (Punto A) -->
       <a-image-target targetIndex="0">
-        <a-entity position="0 0 0">
-          <a-entity
-            gltf-model="#arrow"
-            position="0 0 0"
-            scale="0.5 0.5 0.5"
-            animation="property: position; to: 0 0.15 0; dur: 1000; loop: true; dir: alternate"
-          ></a-entity>
-          <a-text
-            value="Punto A"
-            position="0 0.4 0"
-            align="center"
-            color="yellow"
-            width="2"
-          ></a-text>
-        </a-entity>
+        <a-entity
+          gltf-model="#arrow"
+          position="0 0 0"
+          scale="0.5 0.5 0.5"
+          animation="property: position; to: 0 0.15 0; dur: 1000; loop: true; dir: alternate"
+        ></a-entity>
+        <a-text
+          value="Punto A"
+          position="0 0.4 0"
+          align="center"
+          color="yellow"
+          width="2"
+        ></a-text>
       </a-image-target>
 
       <!-- Marcador 2 (Destino) -->
       <a-image-target targetIndex="1">
-        <a-entity position="0 0 0">
-          <a-entity
-            gltf-model="#arrow"
-            position="0 0 0"
-            scale="0.5 0.5 0.5"
-            rotation="0 180 0"
-            animation="property: position; to: 0 0.15 0; dur: 1000; loop: true; dir: alternate"
-          ></a-entity>
-          <a-text
-            value="Destino"
-            position="0 0.4 0"
-            align="center"
-            color="lime"
-            width="2"
-          ></a-text>
-        </a-entity>
+        <a-entity
+          gltf-model="#arrow"
+          position="0 0 0"
+          scale="0.5 0.5 0.5"
+          rotation="0 180 0"
+          animation="property: position; to: 0 0.15 0; dur: 1000; loop: true; dir: alternate"
+        ></a-entity>
+        <a-text
+          value="Destino"
+          position="0 0.4 0"
+          align="center"
+          color="lime"
+          width="2"
+        ></a-text>
       </a-image-target>
     </a-scene>
 
@@ -107,15 +102,15 @@
           statusMessage.style.color = color;
         };
 
-        // Verificar inicialización de MindAR
+        // Confirmar inicialización de MindAR
         scene.addEventListener('arReady', () => {
-          console.log('MindAR inicializado. Cámara activa.');
+          console.log('MindAR listo. Cámara activa.');
           updateStatus('AR listo. Apunta a los marcadores.', 'green');
         });
 
         // Detectar errores de MindAR
         scene.addEventListener('arError', (err) => {
-          console.error('Error de MindAR:', err);
+          console.error('Error MindAR:', err);
           updateStatus('Error AR: Revisa la consola.', 'red');
         });
 
@@ -123,11 +118,20 @@
         navigator.mediaDevices
           .getUserMedia({ video: { facingMode: 'environment' } })
           .then((stream) => {
-            console.log('Cámara accedida:', stream);
-            updateStatus('Cámara activa. Cargando marcadores...', 'white');
+            console.log('Cámara activa:', stream);
+            updateStatus('Cámara conectada. Cargando marcadores...', 'white');
+            // Forzar renderizado del video
+            const video = document.querySelector('video');
+            if (video) {
+              console.log('Video elemento encontrado:', video);
+              video.style.display = 'block';
+            } else {
+              console.warn('No se encontró elemento de video.');
+              updateStatus('Advertencia: No se detectó feed de video.', 'yellow');
+            }
           })
           .catch((err) => {
-            console.error('Error al acceder a la cámara:', err);
+            console.error('Error cámara:', err);
             updateStatus('Error: No se puede acceder a la cámara.', 'red');
           });
 
@@ -152,6 +156,16 @@
             console.error('Error arrow.glb:', err);
             updateStatus('Error: No se pudo cargar arrow.glb', 'red');
           });
+
+        // Detectar cuando se encuentra un marcador
+        scene.addEventListener('targetFound', () => {
+          console.log('Marcador detectado');
+          updateStatus('Marcador encontrado!', 'green');
+        });
+        scene.addEventListener('targetLost', () => {
+          console.log('Marcador perdido');
+          updateStatus('AR listo. Apunta a los marcadores.', 'green');
+        });
       });
     </script>
   </body>
