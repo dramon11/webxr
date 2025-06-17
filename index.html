@@ -54,6 +54,7 @@
       embedded
       vr-mode-ui="enabled: false"
       device-orientation-permission-ui="enabled: true"
+      renderer="legacyLights: false"
     >
       <a-assets>
         <a-asset-item id="arrow" src="assets/arrow.glb"></a-asset-item>
@@ -121,28 +122,43 @@
           updateStatus('Error AR: Revisa la consola.', 'red');
         });
 
-        // Verificar cámara
+        // Verificar cámara y crear video manualmente si es necesario
         navigator.mediaDevices
           .getUserMedia({ video: { facingMode: 'environment' } })
           .then((stream) => {
             console.log('Cámara conectada:', stream);
-            updateStatus('Cámara activa. Buscando video...', 'white');
+            updateStatus('Cámara activa. Configurando video...', 'white');
 
-            // Buscar elemento de video
-            const checkVideo = () => {
-              const video = document.querySelector('video');
-              if (video && video.srcObject) {
-                console.log('Video encontrado:', video);
-                video.style.display = 'block';
-                video.play().catch((e) => console.error('Error al reproducir video:', e));
-                updateStatus('Video activo. Apunta a los marcadores.', 'green');
-              } else {
-                console.warn('Video no encontrado aún.');
-                updateStatus('Buscando feed de video...', 'yellow');
-                setTimeout(checkVideo, 500); // Reintentar
-              }
+            // Intentar encontrar video de MindAR
+            let video = document.querySelector('video');
+            if (!video) {
+              console.warn('Video de MindAR no encontrado. Creando manualmente.');
+              video = document.createElement('video');
+              video.setAttribute('autoplay', '');
+              video.setAttribute('playsinline', '');
+              video.style.position = 'fixed';
+              video.style.top = '0';
+              video.style.left = '0';
+              video.style.width = '100%';
+              video.style.height = '100%';
+              video.style.zIndex = '-1';
+              document.body.appendChild(video);
+              video.srcObject = stream;
+              video.play().catch((e) => {
+                console.error('Error al reproducir video:', e);
+                updateStatus('Error: No se pudo reproducir video.', 'red');
+              });
+            } else {
+              console.log('Video de MindAR encontrado:', video);
+              video.style.display = 'block';
+              video.play().catch((e) => console.error('Error al reproducir video:', e));
+            }
+
+            // Confirmar que el video está activo
+            video.onplaying = () => {
+              console.log('Video está reproduciendo.');
+              updateStatus('Video activo. Apunta a los marcadores.', 'green');
             };
-            setTimeout(checkVideo, 1000); // Dar tiempo a MindAR
           })
           .catch((err) => {
             console.error('Error cámara:', err);
